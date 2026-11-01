@@ -3,8 +3,8 @@ import {View, ScrollView, StyleSheet} from 'react-native';
 import Heading from './Heading';
 import Input from './Input';
 import Button from './Button';
-
-let todoIndex = 0;
+import TodoList from './TodoList';
+import TabBar from './TabBar';
 
 class App extends Component {
   constructor() {
@@ -13,8 +13,12 @@ class App extends Component {
       inputValue: '',
       todos: [],
       type: 'All',
+      nextIndex: 0,
     };
     this.submitTodo = this.submitTodo.bind(this);
+    this.toggleComplete = this.toggleComplete.bind(this);
+    this.deleteTodo = this.deleteTodo.bind(this);
+    this.setType = this.setType.bind(this);
   }
 
   inputChange(inputValue) {
@@ -26,20 +30,48 @@ class App extends Component {
     if (this.state.inputValue.match(/^\s*$/)) {
       return;
     }
-    const todo = {
-      title: this.state.inputValue,
-      todoIndex,
-      complete: false,
-    };
-    todoIndex++;
-    const todos = [...this.state.todos, todo];
-    this.setState({todos, inputValue: ''}, () => {
-      console.log('State: ', this.state);
-    });
+    this.setState(
+      prevState => ({
+        todos: [
+          ...prevState.todos,
+          {
+            title: prevState.inputValue,
+            todoIndex: prevState.nextIndex,
+            complete: false,
+          },
+        ],
+        nextIndex: prevState.nextIndex + 1,
+        inputValue: '',
+      }),
+      () => {
+        console.log('State: ', this.state);
+      },
+    );
+  }
+
+  deleteTodo(todoIndex) {
+    this.setState(prevState => ({
+      todos: prevState.todos.filter(todo => todo.todoIndex !== todoIndex),
+    }));
+  }
+
+  toggleComplete(todoIndex) {
+    this.setState(prevState => ({
+      todos: prevState.todos.map(todo => {
+        if (todo.todoIndex === todoIndex) {
+          return {...todo, complete: !todo.complete};
+        }
+        return todo;
+      }),
+    }));
+  }
+
+  setType(type) {
+    this.setState({type});
   }
 
   render() {
-    const {inputValue} = this.state;
+    const {todos, inputValue, type} = this.state;
     return (
       <View style={styles.container}>
         <ScrollView keyboardShouldPersistTaps="always" style={styles.content}>
@@ -48,8 +80,15 @@ class App extends Component {
             inputValue={inputValue}
             inputChange={text => this.inputChange(text)}
           />
+          <TodoList
+            type={type}
+            toggleComplete={this.toggleComplete}
+            deleteTodo={this.deleteTodo}
+            todos={todos}
+          />
           <Button submitTodo={this.submitTodo} />
         </ScrollView>
+        <TabBar type={type} setType={this.setType} />
       </View>
     );
   }

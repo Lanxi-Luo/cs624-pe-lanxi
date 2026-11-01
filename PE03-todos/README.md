@@ -1,14 +1,23 @@
 # Input
 
-The input here is pretty small. The user types a task, like "Task1," into the TextInput and taps Submit. The app also starts with three state values - inputValue, todos, and type - set up in App's constructor, carried over from HOS03.
+Same as Part 1, the user types a task and taps Submit. Now there's more to tap, though - Done and Delete on each todo, plus three tabs at the bottom: All, Active, and Complete.
 
 # Process
 
-Every keystroke calls inputChange, which logs the text and updates inputValue with setState. Tapping Submit runs submitTodo - I bound it to App in the constructor so "this" doesn't get lost when the Button calls it. It quietly skips blank input with a regex, builds a todo object with a title, a todoIndex, and complete: false, then adds it to the end of the array with the spread operator. setState clears the box, and its callback logs the new state.
+App keeps inputValue, todos, type, and nextIndex in state. Following the PE03 feedback, submitTodo uses the functional form of setState, and nextIndex replaces the old top-level todoIndex variable. toggleComplete and deleteTodo build new arrays with map() and filter() instead of changing the old ones. Tapping a tab calls setType, then TodoList's getVisibleTodos uses a switch to return all, complete, or active todos. I also swapped the template's _layout.tsx for a plain Slot so its Home/Explore tabs don't cover the TabBar.
 
 # Output
 
-The input box empties after each submit, and the terminal prints the updated todos array. Nothing shows on screen yet - I think that's coming in Part 2.
+The list re-renders to match the selected tab, which turns bold with a white background. The terminal logs each keystroke and the updated state after every submit.
+
+## Part 2
+
+![All tab: Todo1, Todo2, Todo4](screenshots/pe03-part2-all.png)
+![Active tab: only Todo4](screenshots/pe03-part2-active.png)
+![Complete tab: Todo1 and Todo2](screenshots/pe03-part2-complete.png)
+![Terminal output with Input Value and State logs](screenshots/pe03-part2-console.png)
+
+## Part 1
 
 ![Typing Task1 before tapping Submit](screenshots/pe03-part1-ui-task1.jpg)
 ![Typing Task2 before tapping Submit](screenshots/pe03-part1-ui-task2.jpg)
